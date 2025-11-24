@@ -60,11 +60,26 @@ jobs:
     - name: Test Docker image
       run: |
         docker run -d -p 5000:5000 --name test-container ${{ env.DOCKER_IMAGE_NAME }}:latest
-        sleep 15
+        echo "Waiting for container to start..."
+        sleep 20
+        echo "Container logs:"
         docker logs test-container
-        curl -f http://localhost:5000/health || (docker logs test-container && exit 1)
+        echo "Testing health endpoint..."
+        for i in {1..10}; do
+          if curl -f http://localhost:5000/health; then
+            echo "Health check passed!"
+            docker stop test-container
+            docker rm test-container
+            exit 0
+          fi
+          echo "Attempt $i failed, retrying..."
+          sleep 2
+        done
+        echo "Health check failed after 10 attempts"
+        docker logs test-container
         docker stop test-container
         docker rm test-container
+        exit 1
     
     - name: Save Docker image
       run: |
