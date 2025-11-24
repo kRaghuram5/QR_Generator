@@ -80,17 +80,6 @@ jobs:
         docker stop test-container
         docker rm test-container
         exit 1
-    
-    - name: Save Docker image
-      run: |
-        docker save ${{ env.DOCKER_IMAGE_NAME }}:latest | gzip > qr-app-image.tar.gz
-    
-    - name: Upload Docker image artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: docker-image
-        path: qr-app-image.tar.gz
-        retention-days: 1
 
   # Job 3: Push to Docker Hub (Optional - only on main branch)
   push-to-dockerhub:
