@@ -60,8 +60,9 @@ jobs:
     - name: Test Docker image
       run: |
         docker run -d -p 5000:5000 --name test-container ${{ env.DOCKER_IMAGE_NAME }}:latest
-        sleep 10
-        curl -f http://localhost:5000/health || exit 1
+        sleep 15
+        docker logs test-container
+        curl -f http://localhost:5000/health || (docker logs test-container && exit 1)
         docker stop test-container
         docker rm test-container
     
